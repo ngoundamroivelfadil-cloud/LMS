@@ -3,6 +3,7 @@ require_once '../includes/session.php';
 verifierRole('etudiant');
 require_once '../config/database.php';
 require_once '../includes/sidebar.php';
+require_once '../includes/topbar.php';
 
 $id=$_SESSION['user_id'];
 $nb_cours=$conn->query("SELECT COUNT(*) n FROM inscriptions WHERE id_etudiant=$id")->fetch_assoc()['n'];
@@ -36,10 +37,7 @@ $mes_cours=$conn->query("
 <div class="layout">
 <?php sidebar('etudiant','dashboard'); ?>
 <main class="main-content">
-    <div class="topbar">
-        <div><strong>Bienvenue, <?=sanitize($_SESSION['nom'])?></strong><p style="font-size:.82rem;color:var(--text-muted);">Continuez votre apprentissage là où vous vous êtes arrêté.</p></div>
-        <a href="catalogue.php" class="btn btn-primary btn-sm">Découvrir des cours</a>
-    </div>
+    <?php topbar("Bienvenue, " . $_SESSION['nom'], "Continuez votre apprentissage là où vous vous êtes arrêté."); ?>
 
     <div class="stats-grid">
         <div class="stat-card blue"><div class="stat-icon blue"></div><div class="stat-info"><h3><?=$nb_cours?></h3><p>Cours suivis</p></div></div>

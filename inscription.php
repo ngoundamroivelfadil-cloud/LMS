@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 <div class="form-group">
                     <label>Nom complet</label>
                     <div class="input-icon"><i class="fa-solid fa-user"></i>
-                    <input class="form-control" type="text" name="nom" placeholder="Jean Dupont" value="<?= sanitize($_POST['nom']??'') ?>" required></div>
+                    <input class="form-control" type="text" name="nom" placeholder="Votre nom et prénom" value="<?= sanitize($_POST['nom']??'') ?>" required></div>
                 </div>
                 <div class="form-group">
                     <label>Adresse email</label>

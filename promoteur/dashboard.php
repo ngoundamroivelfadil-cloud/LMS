@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/session.php'; verifierRole('promoteur');
-require_once '../config/database.php'; require_once '../includes/sidebar.php'; require_once '../includes/head.php';
+require_once '../config/database.php'; require_once '../includes/sidebar.php'; require_once '../includes/head.php'; require_once '../includes/topbar.php';
 $id=$_SESSION['user_id'];
 $nb_modules=$conn->query("SELECT COUNT(*) n FROM modules WHERE id_promoteur=$id")->fetch_assoc()['n'];
 $nb_cours=$conn->query("SELECT COUNT(*) n FROM cours")->fetch_assoc()['n'];
@@ -13,10 +13,7 @@ htmlHead('Tableau de bord');
 <div class="layout">
 <?php sidebar('promoteur','dashboard'); ?>
 <main class="main-content">
-<div class="topbar">
-    <div><div class="topbar-title">Tableau de bord</div><div class="topbar-sub">Bienvenue, <?=sanitize($_SESSION['nom'])?></div></div>
-    <div class="topbar-actions"><a href="modules.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Nouveau module</a></div>
-</div>
+<?php topbar("Tableau de bord", "Bienvenue, " . sanitize($_SESSION['nom'])); ?>
 <div class="stats-grid">
     <div class="stat-card purple"><div class="stat-icon purple"><i class="fa-solid fa-layer-group"></i></div><div class="stat-info"><h3><?=$nb_modules?></h3><p>Modules</p></div></div>
     <div class="stat-card blue"><div class="stat-icon blue"><i class="fa-solid fa-book-open"></i></div><div class="stat-info"><h3><?=$nb_cours?></h3><p>Cours</p></div></div>

@@ -1,20 +1,23 @@
 <?php
 require_once 'includes/session.php'; if(!estConnecte()){header("Location: index.php");exit();}
-require_once 'config/database.php'; require_once 'includes/sidebar.php'; require_once 'includes/head.php';
+require_once 'config/database.php'; require_once 'includes/sidebar.php'; require_once 'includes/head.php'; require_once 'includes/topbar.php';
 $id=$_SESSION['user_id']; $role=$_SESSION['role']; $msg='';
 // Envoyer message
 if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])&&$_POST['action']==='envoyer'){
+    verifier_csrf();
     $dest=intval($_POST['id_destinataire']); $sujet=trim($_POST['sujet']); $contenu=trim($_POST['contenu']);
     if($dest&&$sujet&&$contenu){
         $s=$conn->prepare("INSERT INTO messages(id_expediteur,id_destinataire,sujet,contenu) VALUES(?,?,?,?)");
-        $s->bind_param("iiss",$id,$dest,$sujet,$contenu); $s->execute(); $msg="Message envoye !";
+        $s->bind_param("iiss",$id,$dest,$sujet,$contenu); $s->execute(); 
+        $msg="Message envoyé !";
+        envoyerNotification($conn, $dest, 'message', 'Nouveau message', 'Vous avez reçu un message de ' . $_SESSION['nom'], 'messagerie.php?id=' . $conn->insert_id);
     }
 }
 // Marquer lu
 if(isset($_GET['lire'])){ $mid=intval($_GET['lire']); $conn->query("UPDATE messages SET lu=1 WHERE id=$mid AND id_destinataire=$id"); }
 // Message actif
 $msg_actif=null;
-if(isset($_GET['id'])){ $mid=intval($_GET['id']); $conn->query("UPDATE messages SET lu=1 WHERE id=$mid AND id_destinataire=$id"); $r=$conn->query("SELECT m.*,exp.nom exp_nom,dest.nom dest_nom FROM messages m JOIN utilisateurs exp ON m.id_expediteur=exp.id JOIN utilisateurs dest ON m.id_destinataire=dest.id WHERE m.id=$mid AND (m.id_destinataire=$id OR m.id_expediteur=$id)"); $msg_actif=$r->fetch_assoc(); }
+if(isset($_GET['id'])){ $mid=intval($_GET['id']); $conn->query("UPDATE messages SET lu=1 WHERE id=$mid AND id_destinataire=$id"); $r=$conn->query("SELECT m.*,exp.nom exp_nom,dest.nom dest_nom FROM messages m JOIN utilisateurs exp ON m.id_expediteur=exp.id JOIN utilisateurs dest ON m.id_destinataire=dest.id WHERE m.id=$mid AND (m.id_destinataire=$id OR m.id_expediteur=$id)"); $msg_actif=$r->fetch_assoc(); if(!$msg_actif) { $msg_actif = ['sujet'=>'Erreur', 'contenu'=>'Message introuvable ou accès refusé.', 'exp_nom'=>'Système', 'dest_nom'=>'Vous', 'date_envoi'=>date('Y-m-d H:i:s')]; } }
 $recus=$conn->query("SELECT m.*,u.nom exp_nom FROM messages m JOIN utilisateurs u ON m.id_expediteur=u.id WHERE m.id_destinataire=$id ORDER BY m.date_envoi DESC");
 $envoyes=$conn->query("SELECT m.*,u.nom dest_nom FROM messages m JOIN utilisateurs u ON m.id_destinataire=u.id WHERE m.id_expediteur=$id ORDER BY m.date_envoi DESC");
 $contacts=$conn->query("SELECT id,nom,role FROM utilisateurs WHERE id!=$id ORDER BY nom");
@@ -22,7 +25,11 @@ htmlHead('Messagerie', '');
 ?>
 <div class="layout"><?php sidebar($role,'messages','');?>
 <main class="main-content">
-<div class="page-header"><div><h1>Messagerie</h1><p>Echangez avec les enseignants et etudiants</p></div><button class="btn btn-primary" onclick="openModal('modalNvMsg')"><i class="fa-solid fa-pen-to-square"></i> Nouveau message</button></div>
+<?php topbar("Messagerie", "Échangez avec les enseignants et étudiants", ""); ?>
+<div class="page-header" style="margin-top:20px;">
+    <div><h1>Boîte de réception</h1></div>
+    <button class="btn btn-primary" onclick="openModal('modalNvMsg')"><i class="fa-solid fa-pen-to-square"></i> Nouveau message</button>
+</div>
 <?php if($msg):?><div class="alert alert-success"><i class="fa-solid fa-check"></i><?=$msg?></div><?php endif;?>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 <div class="card"><div class="card-header"><h2><i class="fa-solid fa-inbox"></i> Messages recus</h2></div>
@@ -65,7 +72,9 @@ if(empty($arr)):?><li style="padding:16px;text-align:center;color:#64748b">Aucun
 </main></div>
 <div class="modal-overlay" id="modalNvMsg"><div class="modal">
 <div class="modal-header"><h3><i class="fa-solid fa-pen-to-square"></i> Nouveau message</h3><button class="modal-close" onclick="closeModal('modalNvMsg')"><i class="fa-solid fa-xmark"></i></button></div>
-<form method="POST"><input type="hidden" name="action" value="envoyer">
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+    <input type="hidden" name="action" value="envoyer">
 <div class="form-group"><label>Destinataire</label>
 <?php
 $contacts_arr = [];

@@ -3,11 +3,12 @@ require_once '../includes/session.php';
 verifierRole('etudiant');
 require_once '../config/database.php';
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header("Location: mes_cours.php"); exit(); }
+verifier_csrf();
+
 $id_etudiant = $_SESSION['user_id'];
 $id_eval     = intval($_POST['id_evaluation'] ?? 0);
 $id_cours    = intval($_POST['id_cours'] ?? 0);
-
-if (!$id_eval || !$id_cours) { header("Location: mes_cours.php"); exit(); }
 
 // Récupérer les questions
 $questions_r = $conn->query("SELECT * FROM questions WHERE id_evaluation=$id_eval ORDER BY id");
@@ -92,6 +93,7 @@ if ($module) {
             if (!$already) {
                 $code = strtoupper(substr(md5($id_etudiant . $id_module . time()), 0, 12));
                 $conn->query("INSERT INTO certificats(id_etudiant,id_module,code_unique) VALUES($id_etudiant,$id_module,'$code')");
+                envoyerNotification($conn, $id_etudiant, 'bravo', 'Félicitations !', 'Vous avez obtenu le certificat pour le module : ' . $module['titre'], 'etudiant/certificats.php');
             }
         }
     }

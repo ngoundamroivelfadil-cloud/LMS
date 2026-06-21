@@ -28,10 +28,7 @@ $mes_cours=$conn->query("
 <div class="layout">
 <?php sidebar('enseignant','dashboard'); ?>
 <main class="main-content">
-    <div class="topbar">
-        <div><strong>Bonjour, <?=sanitize($_SESSION['nom'])?></strong></div>
-        <a href="creer_cours.php" class="btn btn-primary btn-sm">Nouveau cours</a>
-    </div>
+    <?php topbar("Tableau de bord", "Bonjour, " . sanitize($_SESSION['nom'])); ?>
 
     <div class="stats-grid">
         <div class="stat-card blue"><div class="stat-icon blue"></div><div class="stat-info"><h3><?=$nb_cours?></h3><p>Mes cours</p></div></div>

@@ -8,6 +8,21 @@ function verifierRole($role) {
     if ($_SESSION['role'] !== $role) { header("Location: ../index.php"); exit(); }
 }
 
+function csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verifier_csrf() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Erreur de sécurité : Jeton CSRF invalide.");
+        }
+    }
+}
+
 function initiale($nom) {
     $parts = explode(' ', trim($nom));
     $i = strtoupper(substr($parts[0], 0, 1));
@@ -92,3 +107,10 @@ function logConnexion($conn, $id_user) {
 function nbMessagesNonLus($conn, $id_user) {
     return $conn->query("SELECT COUNT(*) n FROM messages WHERE id_destinataire=$id_user AND lu=0")->fetch_assoc()['n'];
 }
+
+function envoyerNotification($conn, $id_user, $type, $titre, $message, $lien = null) {
+    $s = $conn->prepare("INSERT INTO notifications (id_utilisateur, type, titre, message, lien) VALUES (?,?,?,?,?)");
+    $s->bind_param("issss", $id_user, $type, $titre, $message, $lien);
+    return $s->execute();
+}
+

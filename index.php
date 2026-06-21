@@ -6,6 +6,7 @@ if (isset($_SESSION['user_id'])) { header("Location: {$_SESSION['role']}/dashboa
 
 $erreur = '';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
+    verifier_csrf();
     $email = trim($_POST['email']??'');
     $mdp   = trim($_POST['mot_de_passe']??'');
     if (!$email||!$mdp) { $erreur="Veuillez remplir tous les champs."; }
@@ -68,10 +69,16 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     </div>
     <div class="login-right">
         <div class="login-form-box">
-            <h2>Bon retour !</h2>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <h2>Bon retour !</h2>
+                <div class="theme-toggle" onclick="toggleTheme()" title="Changer de thème">
+                    <i class="fa-solid fa-moon"></i>
+                </div>
+            </div>
             <p class="subtitle">Connectez-vous a votre espace d'apprentissage</p>
             <?php if($erreur): ?><div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i><?= sanitize($erreur) ?></div><?php endif; ?>
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <div class="form-group">
                     <label>Adresse email</label>
                     <div class="input-icon"><i class="fa-solid fa-envelope"></i>

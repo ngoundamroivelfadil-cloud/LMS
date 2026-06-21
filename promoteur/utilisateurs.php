@@ -35,7 +35,7 @@ htmlHead('Utilisateurs');
 <div class="modal-overlay" id="modalUser"><div class="modal">
 <div class="modal-header"><h3><i class="fa-solid fa-user-plus"></i> Ajouter</h3><button class="modal-close" onclick="closeModal('modalUser')"><i class="fa-solid fa-xmark"></i></button></div>
 <form method="POST">
-<div class="form-group"><label>Nom</label><input class="form-control" name="nom" required placeholder="Jean Dupont"></div>
+<div class="form-group"><label>Nom</label><input class="form-control" name="nom" required placeholder="Nom complet"></div>
 <div class="form-group"><label>Email</label><input class="form-control" type="email" name="email" required></div>
 <div class="form-group"><label>Mot de passe</label><input class="form-control" type="password" name="mot_de_passe" required></div>
 <div class="form-group"><label>Role</label><select class="form-control" name="role"><option value="etudiant">Etudiant</option><option value="enseignant">Enseignant</option><option value="promoteur">Promoteur</option></select></div>

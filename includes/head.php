@@ -6,6 +6,7 @@ function htmlHead($title, $base = '../') {
     echo '<link rel="icon" type="image/svg+xml" href="' . $base . 'img/logo.svg">';
     echo '<link rel="stylesheet" href="' . $base . 'css/style.css">';
     echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">';
+    echo '<script>const API_URL = "' . $base . 'api/";</script>';
     echo '</head><body>';
 }
 function htmlFoot($base = '../') {

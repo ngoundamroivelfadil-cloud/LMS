@@ -1,3 +1,16 @@
+/* ===== THEME (DARK MODE) ===== */
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+});
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const target = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', target);
+    localStorage.setItem('theme', target);
+}
+
 /* ===== MODALS ===== */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -21,7 +34,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.progress-fill[data-width]').forEach(el => {
         setTimeout(() => el.style.width = el.dataset.width + '%', 200);
     });
+    checkNotifications();
+    setInterval(checkNotifications, 30000); // Check every 30s
 });
+
+async function checkNotifications() {
+    const bell = document.querySelector('.notif-bell .fa-bell');
+    if (!bell) return;
+    try {
+        const r = await fetch(API_URL + 'notifications.php?action=count');
+        const d = await r.json();
+        if (d.count > 0) {
+            let dot = bell.parentElement.querySelector('.notif-dot');
+            if (!dot) {
+                dot = document.createElement('span');
+                dot.className = 'notif-dot';
+                bell.parentElement.appendChild(dot);
+            }
+        }
+    } catch(e) {}
+}
 
 /* ===== CONFIRM DELETE ===== */
 function confirmDelete(msg, url) {
