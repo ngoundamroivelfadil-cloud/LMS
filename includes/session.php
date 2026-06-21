@@ -17,8 +17,13 @@ function csrf_token() {
 
 function verifier_csrf() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            die("Erreur de sécurité : Jeton CSRF invalide.");
+        $token = $_POST['csrf_token'] ?? '';
+        $session_token = $_SESSION['csrf_token'] ?? '';
+        
+        if (empty($token) || $token !== $session_token) {
+            // Si le jeton est invalide, on régénère pour la suite mais on bloque l'action actuelle
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            die("Erreur de sécurité : Session expirée ou jeton invalide. Veuillez actualiser la page et réessayer.");
         }
     }
 }
